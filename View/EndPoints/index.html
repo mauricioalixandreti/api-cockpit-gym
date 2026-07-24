@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gym</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background: #f8fafc; color: #0f172a; }
+    .container { max-width: 520px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    h1 { margin-top: 0; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input, button { width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+    button { background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer; }
+    .secondary { background: #475569; }
+    .danger { background: #dc2626; }
+    .message { text-align: center; color: #1f2937; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Registro Gymy</h1>
+      <label>ID</label>
+      <input id="gymId" placeholder="ID do gym" />
+      <label>Nome</label>
+      <input id="gymNome" placeholder="Nome do gym" />
+      <label>Endereço</label>
+      <input id="gymEndereco" placeholder="Endereço" />
+      <label>Telefone</label>
+      <input id="gymTelefone" placeholder="Telefone" />
+
+      <button onclick="salvarGym()">Salvar</button>
+      <button class="secondary" onclick="buscarGym()">Buscar</button>
+      <button class="danger" onclick="excluirGym()">Excluir</button>
+      <div id="status" class="message">Pronto para uso.</div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'apiCockpitGymGyms';
+    const status = document.getElementById('status');
+
+    function loadLocalGyms() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    function saveLocalGyms(gyms) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(gyms, null, 2));
+    }
+
+    function syncGym(gym) {
+      const gyms = loadLocalGyms();
+      const index = gyms.findIndex((item) => item.id === gym.id);
+      if (index >= 0) gyms[index] = gym;
+      else gyms.push(gym);
+      saveLocalGyms(gyms);
+    }
+
+    async function request(url, method, body = null) {
+      const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      };
+      if (body) options.body = JSON.stringify(body);
+      const response = await fetch(url, options);
+      return response.json();
+    }
+
+    async function salvarGym() {
+      const payload = {
+        id: document.getElementById('gymId').value,
+        nome: document.getElementById('gymNome').value,
+        endereco: document.getElementById('gymEndereco').value,
+        telefone: document.getElementById('gymTelefone').value,
+      };
+
+      const result = await request('/api/v1/gyms', 'POST', payload);
+      if (result.success) {
+        syncGym(payload);
+        status.textContent = 'Gym salvo com sucesso.';
+      } else {
+        status.textContent = result.message || 'Erro ao salvar gym.';
+      }
+    }
+
+    async function buscarGym() {
+      const id = document.getElementById('gymId').value;
+      const result = await request(`/api/v1/gyms/${id}`, 'GET');
+      if (result.success && result.data) {
+        document.getElementById('gymNome').value = result.data.nome || '';
+        document.getElementById('gymEndereco').value = result.data.endereco || '';
+        document.getElementById('gymTelefone').value = result.data.telefone || '';
+        syncGym(result.data);
+        status.textContent = 'Gym encontrado.';
+      } else {
+        status.textContent = result.message || 'Gym não encontrado.';
+      }
+    }
+
+    async function excluirGym() {
+      const id = document.getElementById('gymId').value;
+      const result = await request(`/api/v1/gyms/${id}`, 'DELETE');
+      if (result.success) {
+        const gyms = loadLocalGyms().filter((item) => item.id !== id);
+        saveLocalGyms(gyms);
+        status.textContent = 'Gym excluído com sucesso.';
+      } else {
+        status.textContent = result.message || 'Erro ao excluir gym.';
+      }
+    }
+  </script>
+</body>
+</html>

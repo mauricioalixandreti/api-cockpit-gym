@@ -1,22 +1,29 @@
 package main
 
 import (
-	"API-COCKPIT-GYM/repository"
+	repository "API-COCKPIT-GYM/Repository"
+	routes "API-COCKPIT-GYM/Routes"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// 1. Inicializa o Firebase que está na pasta Repository
 	repository.InitFirebase()
 
-	// 2. Configura o Go para servir os arquivos estáticos da sua pasta View
-	fs := http.FileServer(http.Dir("./View/EndPoints"))
-	http.Handle("/", fs)
+	router := gin.Default()
+
+	router.GET("/", func(c *gin.Context) {
+		c.File("./View/EndPoints/index.html")
+	})
+
+	router.StaticFS("/static", http.Dir("./View/EndPoints"))
+
+	routes.SetupRoutes(router)
 
 	log.Println("Servidor web rodando em http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Erro ao iniciar servidor: %v", err)
 	}
 }

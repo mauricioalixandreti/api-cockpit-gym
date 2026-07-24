@@ -2,20 +2,18 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"google.golang.org/api/option"
-
-	Models "API-COCKPIT-GYM/Models"
 )
 
 var dbClient *db.Client
 
 func InitFirebase() {
 	ctx := context.Background()
-
 	opt := option.WithCredentialsFile("service-account.json")
 
 	config := &firebase.Config{
@@ -42,9 +40,64 @@ func GetDB() *db.Client {
 	return dbClient
 }
 
-func SalvarUsuario(ctx context.Context, user Models.User) error {
+func Create(ctx context.Context, path string, id string, payload any) error {
+	if path == "" {
+		return errors.New("path is required")
+	}
+	if id == "" {
+		return errors.New("id is required")
+	}
 
-	ref := GetDB().NewRef("usuarios/" + user.Name)
+	ref := GetDB().NewRef(path + "/" + id)
+	return ref.Set(ctx, payload)
+}
 
-	return ref.Set(ctx, user)
+func Update(ctx context.Context, path string, id string, payload any) error {
+	if path == "" {
+		return errors.New("path is required")
+	}
+	if id == "" {
+		return errors.New("id is required")
+	}
+
+	mapPayload, ok := payload.(map[string]any)
+	if !ok {
+		return errors.New("payload must be a map[string]any")
+	}
+
+	ref := GetDB().NewRef(path + "/" + id)
+	return ref.Update(ctx, mapPayload)
+}
+
+func Delete(ctx context.Context, path string, id string) error {
+	if path == "" {
+		return errors.New("path is required")
+	}
+	if id == "" {
+		return errors.New("id is required")
+	}
+
+	ref := GetDB().NewRef(path + "/" + id)
+	return ref.Delete(ctx)
+}
+
+func FindByID(ctx context.Context, path string, id string, destination any) error {
+	if path == "" {
+		return errors.New("path is required")
+	}
+	if id == "" {
+		return errors.New("id is required")
+	}
+
+	ref := GetDB().NewRef(path + "/" + id)
+	return ref.Get(ctx, destination)
+}
+
+func FindAll(ctx context.Context, path string, destination any) error {
+	if path == "" {
+		return errors.New("path is required")
+	}
+
+	ref := GetDB().NewRef(path)
+	return ref.Get(ctx, destination)
 }
