@@ -10,7 +10,9 @@ func setupGymRoutes(api *gin.RouterGroup) {
 	gyms := api.Group("/gyms")
 	gyms.POST("", gymController.CreateGym)
 	gyms.GET("", gymController.GetAllGyms)
-	gyms.GET(":id", gymController.GetGymByID)
-	gyms.PUT(":id", gymController.UpdateGym)
-	gyms.DELETE(":id", gymController.DeleteGym)
+
+	gyms = gyms.Group("/:id")
+	gyms.GET("", gymController.GetGymByID)
+	gyms.PUT("", gymController.UpdateGym)
+	gyms.DELETE("", gymController.DeleteGym)
 }

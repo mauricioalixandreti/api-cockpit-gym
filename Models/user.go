@@ -6,7 +6,8 @@ type User struct {
 	ID        string    `json:"id"`
 	Nome      string    `json:"nome"`
 	Email     string    `json:"email"`
-	Plano     string    `json:"plano"`
+	Endereço  string    `json:"endereço"`
+	Telefone  string    `json:"telefone"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

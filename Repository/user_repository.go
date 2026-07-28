@@ -14,7 +14,7 @@ func CreateUser(ctx context.Context, user Models.User) error {
 }
 
 func UpdateUser(ctx context.Context, user Models.User) error {
-	return Update(ctx, userPath, user.ID, user)
+	return Update(ctx, userPath, user.ID, user, "", "", "", "")
 }
 
 func DeleteUser(ctx context.Context, id string) error {
@@ -29,6 +29,7 @@ func FindUserByID(ctx context.Context, id string) (*Models.User, error) {
 	if user.ID == "" {
 		return nil, fmt.Errorf("user %s not found", id)
 	}
+
 	return &user, nil
 }
 

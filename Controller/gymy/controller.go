@@ -1,6 +1,7 @@
 package gymy
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 )
 
 func CreateGym(c *gin.Context) {
+	fmt.Println("Debug gym")
 	var payload Models.Gym
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload"})
@@ -40,6 +42,7 @@ func GetGymByID(c *gin.Context) {
 	gym, err := service.FindGymByID(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": err.Error()})
+
 		return
 	}
 

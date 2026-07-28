@@ -11,28 +11,31 @@
     h1 { margin-top: 0; }
     label { display: block; font-weight: 600; margin-bottom: 6px; }
     input, button { width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
-    button { background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer; }
+    button { background: #104ed3; color: rgb(248, 241, 241); border: none; font-weight: 700; cursor: pointer; }
     .secondary { background: #475569; }
-    .danger { background: #dc2626; }
+    .danger { background: #e00505d5; }
     .message { text-align: center; color: #1f2937; font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Registro Gymy</h1>
+      <h1>Registro Gym(Teste com index.hmtl)</h1>
       <label>ID</label>
-      <input id="gymId" placeholder="ID do gym" />
+      <input id="Id" placeholder="ID" />
       <label>Nome</label>
-      <input id="gymNome" placeholder="Nome do gym" />
+      <input id="Nome" placeholder="Nome" />
+      <label>Email</label>
+      <input id="Email" placeholder="Email"/>
       <label>Endereço</label>
-      <input id="gymEndereco" placeholder="Endereço" />
+      <input id="Endereco" placeholder="Endereço" />
       <label>Telefone</label>
-      <input id="gymTelefone" placeholder="Telefone" />
+      <input id="Telefone" placeholder="Telefone" />
 
       <button onclick="salvarGym()">Salvar</button>
       <button class="secondary" onclick="buscarGym()">Buscar</button>
       <button class="danger" onclick="excluirGym()">Excluir</button>
+      
       <div id="status" class="message">Pronto para uso.</div>
     </div>
   </div>
@@ -70,28 +73,30 @@
 
     async function salvarGym() {
       const payload = {
-        id: document.getElementById('gymId').value,
-        nome: document.getElementById('gymNome').value,
-        endereco: document.getElementById('gymEndereco').value,
-        telefone: document.getElementById('gymTelefone').value,
+        id: document.getElementById('Id').value,
+        nome: document.getElementById('Nome').value,
+        email: document.getElementById('Email').value,
+        endereco: document.getElementById('Endereco').value,
+        telefone: document.getElementById('Telefone').value,
       };
 
       const result = await request('/api/v1/gyms', 'POST', payload);
       if (result.success) {
         syncGym(payload);
-        status.textContent = 'Gym salvo com sucesso.';
+        status.textContent = 'Gym registrado.';
       } else {
         status.textContent = result.message || 'Erro ao salvar gym.';
       }
     }
 
     async function buscarGym() {
-      const id = document.getElementById('gymId').value;
+      const id = document.getElementById('Id').value;
       const result = await request(`/api/v1/gyms/${id}`, 'GET');
       if (result.success && result.data) {
-        document.getElementById('gymNome').value = result.data.nome || '';
-        document.getElementById('gymEndereco').value = result.data.endereco || '';
-        document.getElementById('gymTelefone').value = result.data.telefone || '';
+        document.getElementById('Nome').value = result.data.nome || '';
+        document.getElementById('Email').value = result.data.email || '';
+        document.getElementById('Endereco').value = result.data.endereco || '';
+        document.getElementById('Telefone').value = result.data.telefone || '';
         syncGym(result.data);
         status.textContent = 'Gym encontrado.';
       } else {
@@ -100,7 +105,7 @@
     }
 
     async function excluirGym() {
-      const id = document.getElementById('gymId').value;
+      const id = document.getElementById('Id').value;
       const result = await request(`/api/v1/gyms/${id}`, 'DELETE');
       if (result.success) {
         const gyms = loadLocalGyms().filter((item) => item.id !== id);

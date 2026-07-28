@@ -32,7 +32,26 @@ func GetAllUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Users retrieved successfully", "data": users})
+	responseData := buildUserListResponse(users)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Users retrieved successfully", "data": responseData})
+}
+
+func GetAllUsersJSON(c *gin.Context) {
+	users, err := service.FindAllUsers(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, buildUserListResponse(users))
+}
+
+func buildUserListResponse(users map[string]Models.User) []Models.User {
+	responseData := make([]Models.User, 0, len(users))
+	for _, user := range users {
+		responseData = append(responseData, user)
+	}
+	return responseData
 }
 
 func GetUserByID(c *gin.Context) {

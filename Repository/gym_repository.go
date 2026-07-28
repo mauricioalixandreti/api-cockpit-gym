@@ -14,7 +14,7 @@ func CreateGym(ctx context.Context, gym Models.Gym) error {
 }
 
 func UpdateGym(ctx context.Context, gym Models.Gym) error {
-	return Update(ctx, gymPath, gym.ID, gym)
+	return Update(ctx, gymPath, gym.ID, gym, "gym.Nome", "gym.Endereço", "gym.Endereço", "gym.Telefone")
 }
 
 func DeleteGym(ctx context.Context, id string) error {

@@ -33,12 +33,6 @@ func UpdateUser(ctx context.Context, payload Models.User) (Models.User, error) {
 	if payload.ID == "" {
 		return Models.User{}, errors.New("id is required")
 	}
-	if payload.Nome == "" {
-		return Models.User{}, errors.New("nome is required")
-	}
-	if payload.Email == "" {
-		return Models.User{}, errors.New("email is required")
-	}
 
 	payload.UpdatedAt = time.Now()
 

@@ -52,12 +52,27 @@ func Create(ctx context.Context, path string, id string, payload any) error {
 	return ref.Set(ctx, payload)
 }
 
-func Update(ctx context.Context, path string, id string, payload any) error {
+func Update(ctx context.Context, path string, id string, payload any, email string, telefone string, endereço string, nome string) error {
 	if path == "" {
 		return errors.New("path is required")
 	}
 	if id == "" {
 		return errors.New("id is required")
+	}
+	if endereço == "" {
+		return errors.New("endereço is required")
+	}
+	if telefone == "" {
+		return errors.New("telefone is required")
+	}
+	if email == "" {
+		return errors.New("email is required")
+	}
+	if nome == "" {
+		return errors.New("nome is required")
+	}
+	if email == "" {
+		return errors.New("email is required")
 	}
 
 	mapPayload, ok := payload.(map[string]any)
