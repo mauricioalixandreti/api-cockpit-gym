@@ -1,6 +1,10 @@
 package user
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,10 +13,32 @@ import (
 	service "API-COCKPIT-GYM/Service/user"
 )
 
+func bindUserPayload(c *gin.Context, payload interface{}) error {
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		return err
+	}
+
+	if len(bytes.TrimSpace(body)) == 0 {
+		return nil
+	}
+
+	if err := json.Unmarshal(body, payload); err == nil {
+		return nil
+	}
+
+	c.Request.Body = io.NopCloser(bytes.NewReader(body))
+	if err := c.ShouldBind(payload); err == nil {
+		return nil
+	}
+
+	return fmt.Errorf("invalid payload")
+}
+
 func CreateUser(c *gin.Context) {
 	var payload Models.User
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload"})
+	if err := bindUserPayload(c, &payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload", "error": err.Error()})
 		return
 	}
 
@@ -66,12 +92,13 @@ func GetUserByID(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
+	id := c.Param("id")
 	var payload Models.User
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload"})
+	if err := bindUserPayload(c, &payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload", "error": err.Error()})
 		return
 	}
-	payload.ID = c.Param("id")
+	payload.ID = id
 
 	user, err := service.UpdateUser(c.Request.Context(), payload)
 	if err != nil {

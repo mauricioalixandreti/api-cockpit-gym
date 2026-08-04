@@ -16,6 +16,15 @@ func CreateGym(ctx context.Context, payload Models.Gym) (Models.Gym, error) {
 	if payload.Nome == "" {
 		return Models.Gym{}, errors.New("nome is required")
 	}
+	if payload.Email == "" {
+		return Models.Gym{}, errors.New("email is required")
+	}
+	if payload.Endereço == "" {
+		return Models.Gym{}, errors.New("endereço is required")
+	}
+	if payload.Telefone == "" {
+		return Models.Gym{}, errors.New("telefone is required")
+	}
 
 	payload.CreatedAt = time.Now()
 	payload.UpdatedAt = payload.CreatedAt
@@ -58,4 +67,16 @@ func FindGymByID(ctx context.Context, id string) (*Models.Gym, error) {
 
 func FindAllGyms(ctx context.Context) (map[string]Models.Gym, error) {
 	return repository.FindAllGyms(ctx)
+}
+
+func FindGymOwnerEmail(email string) (*Models.Gym, error) {
+
+	// Validar a busca da academia pelo email do proprietario
+
+	if email == "" {
+		return nil, errors.New("email obrigatório")
+	}
+
+	return repository.FindGymOwnerEmail(email)
+
 }

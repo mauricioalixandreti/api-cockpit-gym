@@ -19,6 +19,12 @@ func CreateUser(ctx context.Context, payload Models.User) (Models.User, error) {
 	if payload.Email == "" {
 		return Models.User{}, errors.New("email is required")
 	}
+	if payload.Endereço == "" {
+		return Models.User{}, errors.New("endereço is required")
+	}
+	if payload.Telefone == "" {
+		return Models.User{}, errors.New("telefone is required")
+	}
 
 	payload.CreatedAt = time.Now()
 	payload.UpdatedAt = payload.CreatedAt

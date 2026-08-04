@@ -10,7 +10,7 @@ import (
 const userPath = "users"
 
 func CreateUser(ctx context.Context, user Models.User) error {
-	return Create(ctx, userPath, user.ID, user)
+	return Create(ctx, userPath, user.ID, user, "", "", "", "")
 }
 
 func UpdateUser(ctx context.Context, user Models.User) error {

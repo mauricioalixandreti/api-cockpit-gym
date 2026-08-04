@@ -12,8 +12,8 @@
     label { display: block; font-weight: 600; margin-bottom: 6px; }
     input, button { width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
     button { background: #104ed3; color: rgb(248, 241, 241); border: none; font-weight: 700; cursor: pointer; }
-    .secondary { background: #475569; }
-    .danger { background: #e00505d5; }
+    .secondary { background: #0c55bd; }
+    .danger { background: #eb0404d5; }
     .message { text-align: center; color: #1f2937; font-weight: 600; }
   </style>
 </head>
@@ -35,7 +35,7 @@
       <button onclick="salvarGym()">Salvar</button>
       <button class="secondary" onclick="buscarGym()">Buscar</button>
       <button class="danger" onclick="excluirGym()">Excluir</button>
-      
+      <button class="danger" onclick="updategym()">Atualizar</button>
       <div id="status" class="message">Pronto para uso.</div>
     </div>
   </div>
@@ -75,8 +75,8 @@
       const payload = {
         id: document.getElementById('Id').value,
         nome: document.getElementById('Nome').value,
-        email: document.getElementById('Email').value,
-        endereco: document.getElementById('Endereco').value,
+          email: document.getElementById('Email').value,
+        endereço: document.getElementById('Endereco').value,
         telefone: document.getElementById('Telefone').value,
       };
 
@@ -95,7 +95,7 @@
       if (result.success && result.data) {
         document.getElementById('Nome').value = result.data.nome || '';
         document.getElementById('Email').value = result.data.email || '';
-        document.getElementById('Endereco').value = result.data.endereco || '';
+        document.getElementById('Endereço').value = result.data.endereço || '';
         document.getElementById('Telefone').value = result.data.telefone || '';
         syncGym(result.data);
         status.textContent = 'Gym encontrado.';
@@ -113,6 +113,25 @@
         status.textContent = 'Gym excluído com sucesso.';
       } else {
         status.textContent = result.message || 'Erro ao excluir gym.';
+      }
+    }
+
+    async function updategym() {
+      const id = document.getElementById('Id').value;
+      const payload = {
+        id,
+        nome: document.getElementById('Nome').value,
+        email: document.getElementById('Email').value,
+        endereço: document.getElementById('Endereco').value,
+        telefone: document.getElementById('Telefone').value,
+      };
+
+      const result = await request(`/api/v1/gyms/${id}`, 'PUT', payload);
+      if (result.success) {
+        syncGym(payload);
+        status.textContent = 'Gym atualizado com sucesso.';
+      } else {
+        status.textContent = result.message || 'Erro ao atualizar gym.';
       }
     }
   </script>

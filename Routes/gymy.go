@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-
 	gymController "API-COCKPIT-GYM/Controller/gymy"
 )
 
@@ -11,8 +10,7 @@ func setupGymRoutes(api *gin.RouterGroup) {
 	gyms.POST("", gymController.CreateGym)
 	gyms.GET("", gymController.GetAllGyms)
 
-	gyms = gyms.Group("/:id")
-	gyms.GET("", gymController.GetGymByID)
-	gyms.PUT("", gymController.UpdateGym)
-	gyms.DELETE("", gymController.DeleteGym)
+	gyms.GET("/:id", gymController.GetGymByID)
+	gyms.PUT("/:id", gymController.UpdateGym)
+	gyms.DELETE("/:id", gymController.DeleteGym)
 }

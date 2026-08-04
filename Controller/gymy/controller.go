@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	Models "API-COCKPIT-GYM/Models"
+	"API-COCKPIT-GYM/Service/gymy"
 	service "API-COCKPIT-GYM/Service/gymy"
 )
 
@@ -55,12 +56,16 @@ func UpdateGym(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "invalid payload"})
 		return
 	}
-	payload.ID = c.Param("id")
 
 	gym, err := service.UpdateGym(c.Request.Context(), payload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
+	}
+	if payload.ID != c.Param("gym.ID") {
+		err.Error()
+		return
+
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Gym updated successfully", "data": gym})
@@ -74,4 +79,26 @@ func DeleteGym(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Gym deleted successfully"})
+}
+
+func GetGymByOwnerEmail(c *gin.Context) {
+
+	email := c.Query("owner_email")
+
+	gymData, err := gymy.FindGymByOwnerEmail(email)
+
+	if err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    gymData,
+	})
 }

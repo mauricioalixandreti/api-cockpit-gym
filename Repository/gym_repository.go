@@ -10,11 +10,11 @@ import (
 const gymPath = "gyms"
 
 func CreateGym(ctx context.Context, gym Models.Gym) error {
-	return Create(ctx, gymPath, gym.ID, gym)
+	return Create(ctx, gymPath, gym.ID, gym, "gym.Nome", "gym.Endereço", "gym.Telefone", "gym.Email")
 }
 
 func UpdateGym(ctx context.Context, gym Models.Gym) error {
-	return Update(ctx, gymPath, gym.ID, gym, "gym.Nome", "gym.Endereço", "gym.Endereço", "gym.Telefone")
+	return Update(ctx, gymPath, gym.ID, gym, "gym.Nome", "gym.Endereço", "gym.Telefone", "gym.Email")
 }
 
 func DeleteGym(ctx context.Context, id string) error {
@@ -38,4 +38,12 @@ func FindAllGyms(ctx context.Context) (map[string]Models.Gym, error) {
 		return nil, err
 	}
 	return s, nil
+}
+
+func FindGymOwnerEmail(email string) (*Models.Gym, error) {
+
+	// Buscar a academia utilizando o email do proprietario.
+
+	return nil, nil
+
 }

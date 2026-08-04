@@ -12,11 +12,7 @@ func setupUserRoutes(api *gin.RouterGroup) {
 	users.GET("", userController.GetAllUsers)
 	users.GET("/json", userController.GetAllUsersJSON)
 
-	users = idRoutes(users)
-	users.GET("", userController.GetUserByID)
-	users.PUT("", userController.UpdateUser)
-	users.DELETE("", userController.DeleteUser)
-}
-func idRoutes(group *gin.RouterGroup) *gin.RouterGroup {
-	return group.Group("/:id")
+	users.GET("/:id", userController.GetUserByID)
+	users.PUT("/:id", userController.UpdateUser)
+	users.DELETE("/:id", userController.DeleteUser)
 }
