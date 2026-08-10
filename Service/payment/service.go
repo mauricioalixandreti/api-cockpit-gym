@@ -5,7 +5,7 @@ import (
 	repository "API-COCKPIT-GYM/Repository"
 )
 
-func GetPaymentsByMonth(gymID string, month string, status string) ([]Models.Payment, error) {
+func GetPaymentsByMonth(gymID string, month string) ([]Models.Payment, error) {
 
 	// Validar busca de dados no Firebase.
 

@@ -40,7 +40,7 @@ func FindAllGyms(ctx context.Context) (map[string]Models.Gym, error) {
 	return s, nil
 }
 
-func FindGymOwnerEmail(email string) (*Models.Gym, error) {
+func FindGymByOwnerEmail(email string) (*Models.Gym, error) {
 
 	// Buscar a academia utilizando o email do proprietario.
 

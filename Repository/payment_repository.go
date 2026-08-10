@@ -4,7 +4,7 @@ import (
 	Models "API-COCKPIT-GYM/Models"
 )
 
-const paymentPath = "payments"
+const paymentPath = "/payments"
 
 func GetPaymentsByMonth(gymID string, month string) ([]Models.Payment, error) {
 

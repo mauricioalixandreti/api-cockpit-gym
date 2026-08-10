@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	Models "API-COCKPIT-GYM/Models"
-	"API-COCKPIT-GYM/Service/gymy"
+
 	service "API-COCKPIT-GYM/Service/gymy"
 )
 
@@ -59,46 +59,70 @@ func UpdateGym(c *gin.Context) {
 
 	gym, err := service.UpdateGym(c.Request.Context(), payload)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
 		return
 	}
 	if payload.ID != c.Param("gym.ID") {
-		err.Error()
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "ID mismatch",
+		})
 		return
 
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Gym updated successfully", "data": gym})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Gym updated successfully",
+		"data":    gym,
+	})
 }
 
 func DeleteGym(c *gin.Context) {
+
 	id := c.Param("id")
 	if err := service.DeleteGym(c.Request.Context(), id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Gym deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Gym deleted successfully",
+	})
 }
 
 func GetGymByOwnerEmail(c *gin.Context) {
 
 	email := c.Query("owner_email")
 
-	gymData, err := gymy.FindGymByOwnerEmail(email)
-
-	if err != nil {
-
+	// Validar se o email foi informado.
+	if email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
 
+			"sucess":  false,
+			"message": "O email do proprietário não foi informado",
+		})
 		return
 	}
 
+	gymData, err := service.FindGymByOwnerEmail(email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Retornar a academia encontrada.
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
+		"message": "Academia encontrada com sucesso",
 		"data":    gymData,
 	})
 }

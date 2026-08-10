@@ -16,7 +16,7 @@ func CreateGym(ctx context.Context, payload Models.Gym) (Models.Gym, error) {
 	if payload.Nome == "" {
 		return Models.Gym{}, errors.New("nome is required")
 	}
-	if payload.Email == "" {
+	if payload.Owner_Email == "" {
 		return Models.Gym{}, errors.New("email is required")
 	}
 	if payload.Endereço == "" {
@@ -69,7 +69,7 @@ func FindAllGyms(ctx context.Context) (map[string]Models.Gym, error) {
 	return repository.FindAllGyms(ctx)
 }
 
-func FindGymOwnerEmail(email string) (*Models.Gym, error) {
+func FindGymByOwnerEmail(email string) (*Models.Gym, error) {
 
 	// Validar a busca da academia pelo email do proprietario
 
@@ -77,6 +77,6 @@ func FindGymOwnerEmail(email string) (*Models.Gym, error) {
 		return nil, errors.New("email obrigatório")
 	}
 
-	return repository.FindGymOwnerEmail(email)
+	return repository.FindGymByOwnerEmail(email)
 
 }
