@@ -1,139 +1,852 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gym</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 24px; background: #f8fafc; color: #0f172a; }
-    .container { max-width: 520px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
-    h1 { margin-top: 0; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; }
-    input, button { width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
-    button { background: #104ed3; color: rgb(248, 241, 241); border: none; font-weight: 700; cursor: pointer; }
-    .secondary { background: #0c55bd; }
-    .danger { background: #eb0404d5; }
-    .message { text-align: center; color: #1f2937; font-weight: 600; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cockpit Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--s1:#0A0A0A;--s2:#101010;--s3:#151515;--s4:#1C1C1C;--gold:#FFD700;--gold2:#FFC400;--gold3:#FFE58A;--tx:#F5F5F5;--tx2:#B5B5B5;--tx3:#8A8A8A;--ok:#6fcf97;--err:#f0908c;--line:rgba(255,255,255,.07);--line2:rgba(255,215,0,.24)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg) radial-gradient(900px 480px at 72% -8%,rgba(255,215,0,.06),transparent 60%) no-repeat;color:var(--tx);font:14px/1.55 Inter,Geist,Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}
+.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.plain{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0;text-align:inherit}
+.topbar{position:sticky;top:0;z-index:30;height:60px;display:flex;align-items:center;gap:14px;padding:0 20px;background:rgba(10,10,10,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+.brand b{color:var(--gold)}
+.logo{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#141100}
+.logo .i{width:16px;height:16px;stroke-width:2.2}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:14px;min-width:0}
+.status-pill{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:99px;background:var(--s2);color:var(--tx2);font-size:12px;white-space:nowrap}
+#storageInfo{color:var(--tx3)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex:none}
+.dot.on{background:var(--gold);box-shadow:0 0 8px rgba(255,215,0,.6);animation:pulse 2.8s ease-in-out infinite}
+.dot.off{background:var(--err)}
+@keyframes pulse{50%{opacity:.45;box-shadow:0 0 3px rgba(255,215,0,.3)}}
+.session-bar{display:none;align-items:center;gap:10px;min-width:0}
+.session-bar.active{display:flex}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--s4);border:1px solid var(--line2);color:var(--gold3);font-weight:600;flex:none}
+.who{display:grid;line-height:1.25;min-width:0}
+.who b{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.who small{color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.link-btn{color:var(--tx3);font-size:13px;padding:7px 10px;border-radius:8px;transition:.15s}
+.link-btn:hover{background:var(--s3);color:var(--tx)}
+.icon-btn{display:none;place-items:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);color:var(--tx2)}
+body:has(#view-dashboard.hidden) #navToggle{display:none!important}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 60px)}
+.sidebar{position:sticky;top:60px;height:calc(100vh - 60px);padding:16px 12px;border-right:1px solid var(--line);background:var(--s1);display:flex;flex-direction:column;gap:3px;overflow:auto;animation:slide .45s ease both}
+@keyframes slide{from{opacity:0;transform:translateX(-12px)}}
+.grp{font-size:12px;color:var(--tx3);padding:14px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:10px;color:var(--tx2);font-weight:500;position:relative;transition:.15s}
+.nav-item:hover{background:var(--s3);color:var(--tx)}
+.nav-item.active{background:rgba(255,215,0,.08);color:var(--gold3)}
+.nav-item.active::before{content:'';position:absolute;left:-12px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--gold)}
+.side-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+.scrim{display:none}
+.main{width:100%;max-width:1100px;margin:0 auto;padding:32px clamp(18px,4vw,48px) 64px}
+.sub{animation:fade .3s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.page-head{margin-bottom:22px}
+.eyebrow{color:var(--gold);font-size:13px;font-weight:500}
+.page-head h1{margin:2px 0 4px;font-size:26px;letter-spacing:-.02em}
+.page-head p,.hint,.sub-copy{margin:0;color:var(--tx3)}
+.card{background:linear-gradient(180deg,var(--s3),var(--s2));border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 12px 32px -20px #000;margin-bottom:16px}
+.card h3{margin:0 0 4px;font-size:16px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form.one{grid-template-columns:1fr}
+.full{grid-column:1/-1}
+label{display:grid;gap:6px;font-size:12px;font-weight:500;color:var(--tx2)}
+input{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--s2);color:var(--tx);font:inherit;transition:border-color .15s,box-shadow .15s}
+input::placeholder{color:#5f5f5f}
+input:focus{outline:none;border-color:rgba(255,215,0,.55);box-shadow:0 0 0 3px rgba(255,215,0,.1)}
+input:disabled{opacity:.55}
+button:focus-visible{outline:2px solid rgba(255,215,0,.6);outline-offset:2px}
+.ct button:not(.plain){width:100%;padding:11px 16px;border-radius:10px;border:1px solid transparent;background:linear-gradient(180deg,var(--gold),var(--gold2));color:#141100;font:inherit;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .15s,filter .15s}
+.ct button:not(.plain):hover{filter:brightness(1.07);box-shadow:0 8px 22px -10px rgba(255,215,0,.6)}
+.ct button:not(.plain):active{transform:scale(.98)}
+.ct button.amber:not(.plain){background:var(--s4);color:var(--tx);border-color:var(--line)}
+.ct button.amber:not(.plain):hover{border-color:var(--line2);box-shadow:none}
+.ct button.ghost:not(.plain){background:transparent;color:var(--tx2);border-color:var(--line);box-shadow:none}
+.ct button.danger:not(.plain){background:rgba(240,144,140,.1);color:var(--err);border-color:rgba(240,144,140,.3)}
+.ct button.danger:not(.plain):hover{box-shadow:none;background:rgba(240,144,140,.16)}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.row>*{flex:1 1 130px}
+.ct .idrow{display:flex;gap:10px;align-items:flex-end}
+.idrow label{flex:1}
+.ct .idrow button:not(.plain){width:auto;white-space:nowrap}
+.message{min-height:20px;font-size:13px;color:var(--tx3)}
+.message::first-letter{text-transform:uppercase}
+.message.success{color:var(--ok)}
+.message.error{color:var(--err)}
+.results{display:grid;gap:10px;margin-top:14px;overflow-x:auto}
+.result-item{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--s2);font-size:13px;color:var(--tx3)}
+.result-item strong{display:block;color:var(--tx);font-size:14px;margin-bottom:4px}
+.result-item .field b{color:var(--tx2);font-weight:500}
+.empty{padding:22px;text-align:center;color:var(--tx3);border:1px dashed var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--tx3);font-weight:500;font-size:12px}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.badge.pendente{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.3)}
+.badge.pago{background:rgba(111,207,151,.1);color:var(--ok);border:1px solid rgba(111,207,151,.3)}
+.qr-frame{margin-top:18px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--s2);text-align:center}
+.qr-box{display:inline-block;padding:12px;background:#fff;border-radius:12px;max-width:100%;overflow:hidden}
+.qr-meta{margin-top:10px;font-size:13px;overflow-wrap:anywhere}
+.qr-meta .k{color:var(--tx3)}
+.qr-caption{margin-top:12px;font-size:12px;color:var(--tx3)}
+.qr-warning{margin-top:4px;font-size:12px;color:var(--gold)}
+.blink{animation:pulse 2.4s ease-in-out infinite}
+.hero{text-align:center;padding:20px 4px 4px}
+.orb{position:relative;width:150px;height:150px;margin:0 auto 16px}
+.orb span{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,215,0,.16);animation:spin 24s linear infinite}
+.orb span+span{inset:18px;border-color:rgba(255,215,0,.1);animation-duration:32s;animation-direction:reverse}
+.orb span::after{content:'';position:absolute;top:-3px;left:50%;width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px rgba(255,215,0,.7)}
+.orb::before{content:'';position:absolute;inset:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold3),var(--gold2) 48%,rgba(255,196,0,.15) 78%);box-shadow:0 0 50px rgba(255,215,0,.32);animation:breathe 5s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{50%{transform:scale(.93);opacity:.85}}
+.state{display:inline-flex;align-items:center;gap:8px;color:var(--tx2);font-size:13px;margin-bottom:8px}
+.hero h2{margin:0 0 6px;font-size:clamp(22px,3.4vw,32px);letter-spacing:-.02em}
+.cmd{max-width:620px;margin:22px auto 0;display:flex;align-items:center;gap:8px;padding:7px 7px 7px 16px;border-radius:16px;background:var(--s2);border:1px solid var(--line);transition:.2s}
+.cmd:focus-within{border-color:rgba(255,215,0,.45);box-shadow:0 0 0 4px rgba(255,215,0,.07),0 14px 40px -22px rgba(255,215,0,.4)}
+.cmd input{border:0;background:transparent;padding:9px 0}
+.cmd input:focus{box-shadow:none}
+.send{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:linear-gradient(180deg,var(--gold),var(--gold2));color:#141100;transition:transform .12s,filter .15s}
+.send:hover{filter:brightness(1.08)}
+.send:active{transform:scale(.94)}
+.hero .message{text-align:center;margin-top:8px}
+.sec-title{margin:30px 0 12px;font-size:15px;font-weight:600;color:var(--tx2)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--s2)}
+.stat small{display:block;font-size:12px;color:var(--tx3)}
+.stat b{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.shortcuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--s2);color:var(--tx);transition:.15s}
+.menu-item:hover{border-color:var(--line2);background:var(--s3);transform:translateY(-2px)}
+.menu-item .ic{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:rgba(255,215,0,.08);color:var(--gold);flex:none}
+.menu-item b{display:block;font-weight:600}
+.menu-item small{color:var(--tx3);font-size:12px}
+.back-link{display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;color:var(--tx3);font-size:13px;transition:.15s}
+.back-link:hover{color:var(--gold3)}
+.auth{min-height:calc(100vh - 60px);display:grid;place-items:center;padding:24px}
+.auth-card{width:100%;max-width:420px;animation:fade .45s ease both}
+.auth-head{text-align:center;margin-bottom:22px}
+.auth-head .logo{width:44px;height:44px;border-radius:12px;margin:0 auto 14px}
+.auth-head .logo .i{width:22px;height:22px}
+.auth-head h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+.auth-head p{margin:0;color:var(--tx3)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--s1);border:1px solid var(--line);margin-bottom:18px}
+.tab{padding:9px;text-align:center!important;border-radius:9px;color:var(--tx3);font-weight:500;transition:.15s}
+.tab:hover{color:var(--tx)}
+.tab.active{background:var(--s4);color:var(--gold3)}
+@media(max-width:900px){
+.icon-btn{display:grid}
+.app{grid-template-columns:1fr}
+.sidebar{position:fixed;top:60px;left:0;bottom:0;height:auto;width:270px;z-index:25;transform:translateX(-102%);transition:transform .25s ease;animation:none}
+.nav-open .sidebar{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.6)}
+.nav-open .scrim{display:block;position:fixed;inset:60px 0 0;background:rgba(0,0,0,.6);z-index:20}
+}
+@media(max-width:640px){
+.form{grid-template-columns:1fr}
+#storageInfo,.who{display:none}
+.topbar{padding:0 14px}
+.card{padding:18px}
+.main{padding-top:22px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>Registro Gym(Teste com index.hmtl)</h1>
-      <label>ID</label>
-      <input id="Id" placeholder="ID" />
-      <label>Nome</label>
-      <input id="Nome" placeholder="Nome" />
-      <label>Email</label>
-      <input id="Email" placeholder="Email"/>
-      <label>Endereço</label>
-      <input id="Endereco" placeholder="Endereço" />
-      <label>Telefone</label>
-      <input id="Telefone" placeholder="Telefone" />
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+<symbol id="i-gym" viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.9.7 3.2 2.5 3.5 5.2"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></symbol>
+</defs></svg>
+<header class="topbar">
+<button type="button" class="plain icon-btn" id="navToggle" onclick="toggleSidebar()" aria-label="Abrir menu"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+<div class="brand"><span class="logo"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><span>Cockpit<b>Gym</b></span></div>
+<div class="top-right">
+<div class="status-pill"><span class="dot" id="apiDot"></span><span id="apiLabel">Verificando</span><span id="storageInfo"></span></div>
+<div class="session-bar" id="sessionBar"><span class="avatar" id="avatar">?</span><div class="who"><b id="sessionName">-</b><small id="sessionId"></small></div><button type="button" class="plain link-btn" onclick="logout()">Sair</button></div>
+</div>
+</header>
 
-      <button onclick="salvarGym()">Salvar</button>
-      <button class="secondary" onclick="buscarGym()">Buscar</button>
-      <button class="danger" onclick="excluirGym()">Excluir</button>
-      <button class="danger" onclick="updategym()">Atualizar</button>
-      <div id="status" class="message">Pronto para uso.</div>
-    </div>
-  </div>
+<div id="view-auth" class="auth ct"><div class="auth-card">
+<div class="auth-head"><span class="logo"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><h1>Bem-vindo</h1><p>Acesse sua conta ou crie um novo registro.</p></div>
+<div class="card">
+<div class="tabs"><button type="button" class="plain tab active" id="authTabLogin" onclick="switchAuthTab('login')">Entrar</button><button type="button" class="plain tab" id="authTabRegister" onclick="switchAuthTab('register')">Registrar</button></div>
+<div id="auth-login" class="form one">
+<p class="hint">Informe o ID de acesso gerado no registro. Não há senha nesta versão de teste.</p>
+<label>ID de acesso<input id="loginId" placeholder="ex: 8f2a91cd-..." autocomplete="off"></label>
+<button onclick="entrar()">Entrar</button>
+<div id="loginStatus" class="message">Aguardando entrada.</div>
+</div>
+<div id="auth-register" class="form one hidden">
+<p class="hint">Cria seu usuário na base do projeto.</p>
+<label>Nome<input id="regNome" placeholder="Nome completo"></label>
+<label>Email<input id="regEmail" placeholder="email@exemplo.com"></label>
+<label>Endereço<input id="regEndereco" placeholder="Endereço"></label>
+<label>Telefone<input id="regTelefone" placeholder="Telefone"></label>
+<button onclick="registrar()">Criar conta</button>
+<div id="registerStatus" class="message">Preencha os dados para criar sua conta.</div>
+</div>
+</div></div></div>
+
+<div id="view-dashboard" class="app hidden">
+<aside class="sidebar" id="sidebar">
+<div class="grp">Geral</div>
+<button type="button" class="plain nav-item" data-nav="menu" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg>Início</button>
+<div class="grp">Gestão</div>
+<button type="button" class="plain nav-item" data-nav="gym" onclick="showSub('gym')"><svg class="i" aria-hidden="true"><use href="#i-gym"/></svg>Cadastrar academia</button><button type="button" class="plain nav-item" data-nav="users" onclick="showSub('users')"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Gerenciar usuários</button><button type="button" class="plain nav-item" data-nav="listGyms" onclick="showSub('listGyms')"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg>Listar academias</button><button type="button" class="plain nav-item" data-nav="listUsers" onclick="showSub('listUsers')"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg>Listar usuários</button>
+<div class="grp">Financeiro</div>
+<button type="button" class="plain nav-item" data-nav="paymentsStatus" onclick="showSub('paymentsStatus')"><svg class="i" aria-hidden="true"><use href="#i-card"/></svg>Status de pagamentos</button><button type="button" class="plain nav-item" data-nav="paymentsNew" onclick="showSub('paymentsNew')"><svg class="i" aria-hidden="true"><use href="#i-qr"/></svg>Nova cobrança</button>
+<div class="side-foot"><button type="button" class="plain nav-item" onclick="logout()"><svg class="i" aria-hidden="true"><use href="#i-out"/></svg>Sair</button></div>
+</aside>
+<div class="scrim" onclick="toggleSidebar(false)"></div>
+<main class="main ct">
+
+<section id="sub-menu" class="sub">
+<div class="hero">
+<div class="orb"><span></span><span></span></div>
+<div class="state"><span class="dot on" id="stateDot"></span><span id="sysState">Sistema ativo</span></div>
+<h2>O que você quer fazer hoje?</h2>
+<p class="sub-copy">Digite um destino ou escolha um atalho abaixo.</p>
+<div class="cmd"><input id="cmdInput" placeholder="Ex.: academias, usuários, pagamentos" autocomplete="off" onkeydown="if(event.key==='Enter')executarComando()"><button type="button" class="plain send" onclick="executarComando()" aria-label="Ir"><svg class="i" aria-hidden="true"><use href="#i-go"/></svg></button></div>
+<div id="cmdHint" class="message"></div>
+</div>
+<div class="sec-title">Sistema</div>
+<div class="stats"><div class="stat"><small>Academias</small><b id="sysGyms">—</b></div><div class="stat"><small>Usuários</small><b id="sysUsers">—</b></div></div>
+<div class="sec-title">Atalhos</div>
+<div class="shortcuts"><button type="button" class="plain menu-item" onclick="showSub('gym')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-gym"/></svg></span><span><b>Cadastrar academia</b><small>Criar, buscar, atualizar e excluir</small></span></button><button type="button" class="plain menu-item" onclick="showSub('users')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></span><span><b>Gerenciar usuários</b><small>Cadastro completo de usuários</small></span></button><button type="button" class="plain menu-item" onclick="showSub('listGyms')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span><span><b>Listar academias</b><small>Todas ou por e-mail do proprietário</small></span></button><button type="button" class="plain menu-item" onclick="showSub('listUsers')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg></span><span><b>Listar usuários</b><small>Todos os usuários cadastrados</small></span></button><button type="button" class="plain menu-item" onclick="showSub('paymentsStatus')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-card"/></svg></span><span><b>Status de pagamentos</b><small>Consulta por mês e status</small></span></button><button type="button" class="plain menu-item" onclick="showSub('paymentsNew')"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-qr"/></svg></span><span><b>Nova cobrança</b><small>Gere e conclua cobranças</small></span></button></div>
+</section>
+
+<section id="sub-gym" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Academias</span><h1>Cadastrar academia</h1><p>Crie, consulte, atualize ou exclua academias pelo ID.</p></div>
+<div class="card form">
+<div class="full idrow"><label>ID<input id="gymId" placeholder="ID"></label><button type="button" class="ghost" onclick="gerarId('gymId')">Gerar ID</button></div>
+<label>Nome<input id="gymNome" placeholder="Nome da academia"></label>
+<label>Email do proprietário<input id="gymOwnerEmail" placeholder="email@exemplo.com"></label>
+<label>Endereço<input id="gymEndereco" placeholder="Endereço"></label>
+<label>Telefone<input id="gymTelefone" placeholder="Telefone"></label>
+<div class="full row"><button onclick="salvarGym()">Salvar</button><button class="amber" onclick="buscarGymPorId()">Buscar por ID</button><button class="amber" onclick="atualizarGym()">Atualizar</button><button class="danger" onclick="excluirGym()">Excluir</button></div>
+<div id="gymStatus" class="message full">Pronto.</div>
+</div>
+</section>
+
+<section id="sub-users" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Usuários</span><h1>Gerenciar usuários</h1><p>Cadastro, consulta, edição e exclusão de usuários pelo ID.</p></div>
+<div class="card form">
+<div class="full idrow"><label>ID<input id="userId" placeholder="ID"></label><button type="button" class="ghost" onclick="gerarId('userId')">Gerar ID</button></div>
+<label>Nome<input id="userNome" placeholder="Nome"></label>
+<label>Email<input id="userEmail" placeholder="email@exemplo.com"></label>
+<label>Endereço<input id="userEndereco" placeholder="Endereço"></label>
+<label>Telefone<input id="userTelefone" placeholder="Telefone"></label>
+<div class="full row"><button onclick="salvarUser()">Salvar</button><button class="amber" onclick="buscarUserPorId()">Buscar por ID</button><button class="amber" onclick="atualizarUser()">Atualizar</button><button class="danger" onclick="excluirUser()">Excluir</button></div>
+<div id="userStatus" class="message full">Pronto.</div>
+</div>
+</section>
+
+<section id="sub-listGyms" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Academias</span><h1>Listar academias</h1><p>Veja todas as academias ou busque pelo e-mail do proprietário.</p></div>
+<div class="card">
+<button onclick="listarGyms()">Listar todas</button>
+<div class="idrow" style="margin-top:16px"><label>Email do proprietário<input id="gymSearchEmail" placeholder="email@exemplo.com"></label><button class="amber" onclick="buscarGymPorEmail()">Buscar por email</button></div>
+<div id="gymListStatus" class="message" style="margin-top:10px">Pronto.</div>
+<div id="gymResults" class="results"></div>
+</div>
+</section>
+
+<section id="sub-listUsers" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Usuários</span><h1>Listar usuários</h1><p>Todos os usuários cadastrados na base.</p></div>
+<div class="card">
+<button onclick="listarUsers()">Listar todos</button>
+<div id="userListStatus" class="message" style="margin-top:10px">Pronto.</div>
+<div id="userResults" class="results"></div>
+</div>
+</section>
+
+<section id="sub-paymentsStatus" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Financeiro</span><h1>Status de pagamentos</h1><p>Consulte pagamentos de uma academia por mês e, se quiser, por status.</p></div>
+<div class="card form">
+<label>ID da academia<input id="paymentGymId" placeholder="ID da academia"></label>
+<label>Mês<input id="paymentMonth" placeholder="ex: 2026-08"></label>
+<label class="full">Status (opcional)<input id="paymentStatus" placeholder="ex: pago, pendente, atrasado"></label>
+<div class="full row"><button onclick="buscarPagamentosPorMes()">Buscar por mês</button><button class="amber" onclick="buscarPagamentosPorMesEStatus()">Buscar por mês e status</button></div>
+<div id="paymentStatusMsg" class="message full">Pronto.</div>
+<div id="paymentResults" class="results full"></div>
+</div>
+</section>
+
+<section id="sub-paymentsNew" class="sub hidden">
+<button type="button" class="plain back-link" onclick="showSub('menu')"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg> Voltar ao início</button><div class="page-head"><span class="eyebrow">Financeiro</span><h1>Nova cobrança</h1><p>Cria a cobrança na API e exibe um QR ilustrativo de teste.</p></div>
+<div class="card form">
+<label>ID da academia<input id="newPaymentGymId" placeholder="ID da academia"></label>
+<label>Mês de referência<input id="newPaymentMonth" placeholder="ex: 2026-08"></label>
+<label>Destino (fixo)<input value="(83) 99965-9889" disabled></label>
+<label>Valor (fixo)<input value="R$ 0,00 — apenas para testes" disabled></label>
+<div class="full"><button onclick="gerarPagamentoTeste()">Gerar cobrança de teste</button></div>
+<div id="newPaymentStatus" class="message full">Pronto.</div>
+<div id="qrArea" class="full"></div>
+</div>
+<div class="card">
+<h3>Cobranças da academia</h3>
+<p class="hint">Cobranças do mês informado acima, lidas do servidor.</p>
+<button class="ghost" style="margin-top:12px" onclick="recarregarCobrancas()">Recarregar do servidor</button>
+<div id="localPaymentsList" class="results"></div>
+</div>
+</section>
+
+</main>
+</div>
 
   <script>
-    const STORAGE_KEY = 'apiCockpitGymGyms';
-    const status = document.getElementById('status');
+    const API_BASE = '/api/v1';
+    const SESSION_KEY = 'apiCockpitCurrentUserId';
+    const GYM_STORAGE_KEY = 'apiCockpitGymGyms';
+    const USER_STORAGE_KEY = 'apiCockpitGymUsers';
+    const TEST_PIX_TARGET = '83999659889';
 
-    function loadLocalGyms() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+    let currentUser = null;
+
+    function gerarId(fieldId) {
+      const id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      document.getElementById(fieldId).value = id;
     }
 
-    function saveLocalGyms(gyms) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(gyms, null, 2));
+    function setStatus(elId, text, type) {
+      const el = document.getElementById(elId);
+      el.textContent = text;
+      el.classList.remove('error', 'success');
+      if (type) el.classList.add(type);
     }
 
-    function syncGym(gym) {
-      const gyms = loadLocalGyms();
-      const index = gyms.findIndex((item) => item.id === gym.id);
-      if (index >= 0) gyms[index] = gym;
-      else gyms.push(gym);
-      saveLocalGyms(gyms);
+    async function safeJson(response) {
+      const text = await response.text();
+      if (!text) return { success: false, message: 'resposta vazia do servidor.' };
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        let depth = 0;
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === '{') depth++;
+          if (text[i] === '}') {
+            depth--;
+            if (depth === 0) {
+              try { return JSON.parse(text.slice(0, i + 1)); } catch (e2) { break; }
+            }
+          }
+        }
+        return { success: false, message: 'resposta inválida do servidor.' };
+      }
     }
 
     async function request(url, method, body = null) {
-      const options = {
-        method,
-        headers: { 'Content-Type': 'application/json' }
-      };
+      const options = { method, headers: { 'Content-Type': 'application/json' } };
       if (body) options.body = JSON.stringify(body);
       const response = await fetch(url, options);
-      return response.json();
+      return safeJson(response);
     }
 
-    async function salvarGym() {
-      const payload = {
-        id: document.getElementById('Id').value,
-        nome: document.getElementById('Nome').value,
-          email: document.getElementById('Email').value,
-        endereço: document.getElementById('Endereco').value,
-        telefone: document.getElementById('Telefone').value,
-      };
+    function loadLocal(key) {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : [];
+    }
+    function saveLocal(key, list) { localStorage.setItem(key, JSON.stringify(list, null, 2)); }
+    function syncLocal(key, item) {
+      const list = loadLocal(key);
+      const index = list.findIndex((entry) => entry.id === item.id);
+      if (index >= 0) list[index] = item; else list.push(item);
+      saveLocal(key, list);
+    }
+    function removeLocal(key, id) { saveLocal(key, loadLocal(key).filter((entry) => entry.id !== id)); }
 
-      const result = await request('/api/v1/gyms', 'POST', payload);
-      if (result.success) {
-        syncGym(payload);
-        status.textContent = 'Gym registrado.';
-      } else {
-        status.textContent = result.message || 'Erro ao salvar gym.';
+    function renderList(containerId, items, fields, emptyMessage) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      if (!items || items.length === 0) {
+        container.innerHTML = `<div class="empty">${emptyMessage}</div>`;
+        return;
       }
+      items.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        const title = item.nome || item.id || '(sem nome)';
+        const fieldsHtml = fields.map(({ key, label }) => `<div class="field"><b>${label}:</b> ${item[key] ?? '-'}</div>`).join('');
+        div.innerHTML = `<strong>${title}</strong>${fieldsHtml}`;
+        container.appendChild(div);
+      });
     }
 
-    async function buscarGym() {
-      const id = document.getElementById('Id').value;
-      const result = await request(`/api/v1/gyms/${id}`, 'GET');
+    function switchAuthTab(tab) {
+      document.getElementById('authTabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('authTabRegister').classList.toggle('active', tab === 'register');
+      document.getElementById('auth-login').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('auth-register').classList.toggle('hidden', tab !== 'register');
+    }
+
+    function showSub(name) {
+      ['menu', 'gym', 'users', 'listGyms', 'listUsers', 'paymentsStatus', 'paymentsNew'].forEach((s) => {
+        document.getElementById(`sub-${s}`).classList.toggle('hidden', s !== name);
+      });
+      if (name === 'paymentsNew') recarregarCobrancas();
+    }
+
+    function goToDashboard() {
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.remove('hidden');
+      document.getElementById('sessionBar').classList.add('active');
+      document.getElementById('sessionName').textContent = currentUser.nome || '(sem nome)';
+      document.getElementById('sessionId').textContent = `[id:${currentUser.id}]`;
+      showSub('menu');
+    }
+
+    function goToAuth() {
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-auth').classList.remove('hidden');
+      document.getElementById('sessionBar').classList.remove('active');
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem(SESSION_KEY);
+      goToAuth();
+      setStatus('loginStatus', 'sessão encerrada.', 'success');
+    }
+
+    async function entrar() {
+      const id = document.getElementById('loginId').value.trim();
+      if (!id) { setStatus('loginStatus', 'informe o ID de acesso.', 'error'); return; }
+      setStatus('loginStatus', 'autenticando...', null);
+      const result = await request(`${API_BASE}/users/${id}`, 'GET');
       if (result.success && result.data) {
-        document.getElementById('Nome').value = result.data.nome || '';
-        document.getElementById('Email').value = result.data.email || '';
-        document.getElementById('Endereço').value = result.data.endereço || '';
-        document.getElementById('Telefone').value = result.data.telefone || '';
-        syncGym(result.data);
-        status.textContent = 'Gym encontrado.';
+        currentUser = result.data;
+        localStorage.setItem(SESSION_KEY, currentUser.id);
+        syncLocal(USER_STORAGE_KEY, currentUser);
+        setStatus('loginStatus', 'acesso concedido.', 'success');
+        goToDashboard();
       } else {
-        status.textContent = result.message || 'Gym não encontrado.';
+        setStatus('loginStatus', result.message || 'ID não encontrado.', 'error');
       }
     }
 
-    async function excluirGym() {
-      const id = document.getElementById('Id').value;
-      const result = await request(`/api/v1/gyms/${id}`, 'DELETE');
-      if (result.success) {
-        const gyms = loadLocalGyms().filter((item) => item.id !== id);
-        saveLocalGyms(gyms);
-        status.textContent = 'Gym excluído com sucesso.';
-      } else {
-        status.textContent = result.message || 'Erro ao excluir gym.';
-      }
-    }
-
-    async function updategym() {
-      const id = document.getElementById('Id').value;
+    async function registrar() {
       const payload = {
-        id,
-        nome: document.getElementById('Nome').value,
-        email: document.getElementById('Email').value,
-        endereço: document.getElementById('Endereco').value,
-        telefone: document.getElementById('Telefone').value,
+        id: (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+        nome: document.getElementById('regNome').value,
+        email: document.getElementById('regEmail').value,
+        'endereço': document.getElementById('regEndereco').value,
+        telefone: document.getElementById('regTelefone').value,
+      };
+      setStatus('registerStatus', 'criando conta...', null);
+      const result = await request(`${API_BASE}/users`, 'POST', payload);
+      if (result.success) {
+        syncLocal(USER_STORAGE_KEY, payload);
+        setStatus('registerStatus', `conta criada. seu ID de acesso: ${payload.id} (guarde-o — sem senha nesta versão)`, 'success');
+        document.getElementById('loginId').value = payload.id;
+        switchAuthTab('login');
+      } else {
+        setStatus('registerStatus', result.message || 'erro ao registrar.', 'error');
+      }
+    }
+
+    async function tentarSessaoSalva() {
+      const savedId = localStorage.getItem(SESSION_KEY);
+      if (!savedId) return;
+      const result = await request(`${API_BASE}/users/${savedId}`, 'GET');
+      if (result.success && result.data) {
+        currentUser = result.data;
+        goToDashboard();
+      } else {
+        localStorage.removeItem(SESSION_KEY);
+      }
+    }
+
+    function gymPayload() {
+      return {
+        id: document.getElementById('gymId').value,
+        nome: document.getElementById('gymNome').value,
+        owner_email: document.getElementById('gymOwnerEmail').value,
+        'endereço': document.getElementById('gymEndereco').value,
+        telefone: document.getElementById('gymTelefone').value,
+      };
+    }
+    function fillGymForm(data) {
+      document.getElementById('gymId').value = data.id || '';
+      document.getElementById('gymNome').value = data.nome || '';
+      document.getElementById('gymOwnerEmail').value = data.owner_email || '';
+      document.getElementById('gymEndereco').value = data['endereço'] || '';
+      document.getElementById('gymTelefone').value = data.telefone || '';
+    }
+    async function salvarGym() {
+      const payload = gymPayload();
+      const result = await request(`${API_BASE}/gyms`, 'POST', payload);
+      if (result.success) { syncLocal(GYM_STORAGE_KEY, payload); setStatus('gymStatus', 'academia registrada.', 'success'); }
+      else setStatus('gymStatus', result.message || 'erro ao salvar academia.', 'error');
+    }
+    async function buscarGymPorId() {
+      const id = document.getElementById('gymId').value;
+      const result = await request(`${API_BASE}/gyms/${id}`, 'GET');
+      if (result.success && result.data) { fillGymForm(result.data); syncLocal(GYM_STORAGE_KEY, result.data); setStatus('gymStatus', 'academia encontrada.', 'success'); }
+      else setStatus('gymStatus', result.message || 'academia não encontrada.', 'error');
+    }
+    async function atualizarGym() {
+      const id = document.getElementById('gymId').value;
+      const payload = gymPayload();
+      const result = await request(`${API_BASE}/gyms/${id}`, 'PUT', payload);
+      if (result.success) { syncLocal(GYM_STORAGE_KEY, payload); setStatus('gymStatus', 'academia atualizada.', 'success'); }
+      else setStatus('gymStatus', result.message || 'erro ao atualizar academia.', 'error');
+    }
+    async function excluirGym() {
+      const id = document.getElementById('gymId').value;
+      const result = await request(`${API_BASE}/gyms/${id}`, 'DELETE');
+      if (result.success) { removeLocal(GYM_STORAGE_KEY, id); setStatus('gymStatus', 'academia excluída.', 'success'); }
+      else setStatus('gymStatus', result.message || 'erro ao excluir academia.', 'error');
+    }
+    async function listarGyms() {
+      const result = await request(`${API_BASE}/gyms`, 'GET');
+      const gymFields = [
+        { key: 'id', label: 'ID' }, { key: 'owner_email', label: 'email do proprietário' },
+        { key: 'endereço', label: 'endereço' }, { key: 'telefone', label: 'telefone' },
+      ];
+      if (result.success && result.data) {
+        const list = Array.isArray(result.data) ? result.data : Object.values(result.data);
+        renderList('gymResults', list, gymFields, 'nenhuma academia cadastrada.');
+        setStatus('gymListStatus', 'academias listadas.', 'success');
+      } else {
+        renderList('gymResults', [], gymFields, 'nenhuma academia cadastrada.');
+        setStatus('gymListStatus', result.message || 'erro ao listar academias.', 'error');
+      }
+    }
+    async function buscarGymPorEmail() {
+      const email = document.getElementById('gymSearchEmail').value;
+      const result = await request(`${API_BASE}/gyms?owner_email=${encodeURIComponent(email)}`, 'GET');
+      const gymFields = [
+        { key: 'id', label: 'ID' }, { key: 'owner_email', label: 'email do proprietário' },
+        { key: 'endereço', label: 'endereço' }, { key: 'telefone', label: 'telefone' },
+      ];
+      if (result.success && result.data) {
+        const item = Array.isArray(result.data) ? result.data : [result.data];
+        renderList('gymResults', item, gymFields, 'nenhuma academia encontrada para esse email.');
+        setStatus('gymListStatus', 'academia encontrada.', 'success');
+      } else {
+        renderList('gymResults', [], gymFields, 'nenhuma academia encontrada para esse email.');
+        setStatus('gymListStatus', result.message || 'academia não encontrada.', 'error');
+      }
+    }
+
+    function userPayload() {
+      return {
+        id: document.getElementById('userId').value,
+        nome: document.getElementById('userNome').value,
+        email: document.getElementById('userEmail').value,
+        'endereço': document.getElementById('userEndereco').value,
+        telefone: document.getElementById('userTelefone').value,
+      };
+    }
+    function fillUserForm(data) {
+      document.getElementById('userId').value = data.id || '';
+      document.getElementById('userNome').value = data.nome || '';
+      document.getElementById('userEmail').value = data.email || '';
+      document.getElementById('userEndereco').value = data['endereço'] || '';
+      document.getElementById('userTelefone').value = data.telefone || '';
+    }
+    async function salvarUser() {
+      const payload = userPayload();
+      const result = await request(`${API_BASE}/users`, 'POST', payload);
+      if (result.success) { syncLocal(USER_STORAGE_KEY, payload); setStatus('userStatus', 'usuário registrado.', 'success'); }
+      else setStatus('userStatus', result.message || 'erro ao salvar usuário.', 'error');
+    }
+    async function buscarUserPorId() {
+      const id = document.getElementById('userId').value;
+      const result = await request(`${API_BASE}/users/${id}`, 'GET');
+      if (result.success && result.data) { fillUserForm(result.data); syncLocal(USER_STORAGE_KEY, result.data); setStatus('userStatus', 'usuário encontrado.', 'success'); }
+      else setStatus('userStatus', result.message || 'usuário não encontrado.', 'error');
+    }
+    async function atualizarUser() {
+      const id = document.getElementById('userId').value;
+      const payload = userPayload();
+      const result = await request(`${API_BASE}/users/${id}`, 'PUT', payload);
+      if (result.success) { syncLocal(USER_STORAGE_KEY, payload); setStatus('userStatus', 'usuário atualizado.', 'success'); }
+      else setStatus('userStatus', result.message || 'erro ao atualizar usuário.', 'error');
+    }
+    async function excluirUser() {
+      const id = document.getElementById('userId').value;
+      const result = await request(`${API_BASE}/users/${id}`, 'DELETE');
+      if (result.success) { removeLocal(USER_STORAGE_KEY, id); setStatus('userStatus', 'usuário excluído.', 'success'); }
+      else setStatus('userStatus', result.message || 'erro ao excluir usuário.', 'error');
+    }
+    async function listarUsers() {
+      const result = await request(`${API_BASE}/users`, 'GET');
+      const userFields = [
+        { key: 'id', label: 'ID' }, { key: 'email', label: 'email' },
+        { key: 'endereço', label: 'endereço' }, { key: 'telefone', label: 'telefone' },
+      ];
+      if (result.success && result.data) {
+        renderList('userResults', result.data, userFields, 'nenhum usuário cadastrado.');
+        setStatus('userListStatus', 'usuários listados.', 'success');
+      } else {
+        renderList('userResults', [], userFields, 'nenhum usuário cadastrado.');
+        setStatus('userListStatus', result.message || 'erro ao listar usuários.', 'error');
+      }
+    }
+
+    function renderPayments(list) {
+      const container = document.getElementById('paymentResults');
+      container.innerHTML = '';
+      if (!list || list.length === 0) { container.innerHTML = '<div class="empty">nenhum pagamento encontrado.</div>'; return; }
+      const rows = list.map((p) => `<tr>
+          <td>${p.id ?? '-'}</td><td>${p.month ?? '-'}</td>
+          <td><span class="badge ${p.status === 'pago' ? 'pago' : 'pendente'}">${p.status ?? '-'}</span></td>
+          <td>${p.due_date ?? '-'}</td><td>${p.value ?? '-'}</td>
+        </tr>`).join('');
+      container.innerHTML = `<table><thead><tr><th>ID</th><th>mês</th><th>status</th><th>vencimento</th><th>valor</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    async function buscarPagamentosPorMes() {
+      const gymId = document.getElementById('paymentGymId').value;
+      const month = document.getElementById('paymentMonth').value;
+      const result = await request(`${API_BASE}/payments/gyms/${gymId}/payments_by_month/${month}`, 'GET');
+      if (result.success) { renderPayments(result.data); setStatus('paymentStatusMsg', `pagamentos encontrados: ${result.count ?? (result.data ? result.data.length : 0)}.`, 'success'); }
+      else { renderPayments([]); setStatus('paymentStatusMsg', result.message || 'erro ao buscar pagamentos.', 'error'); }
+    }
+    async function buscarPagamentosPorMesEStatus() {
+      const gymId = document.getElementById('paymentGymId').value;
+      const month = document.getElementById('paymentMonth').value;
+      const status = document.getElementById('paymentStatus').value;
+      const result = await request(`${API_BASE}/payments/payments_by_months/${month}/gym/${gymId}/status/${status}`, 'GET');
+      if (result.success) { renderPayments(result.data); setStatus('paymentStatusMsg', `pagamentos encontrados: ${result.count ?? (result.data ? result.data.length : 0)}.`, 'success'); }
+      else { renderPayments([]); setStatus('paymentStatusMsg', result.message || 'erro ao buscar pagamentos.', 'error'); }
+    }
+
+    function mulberry32(seed) {
+      return function () {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function hashSeed(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = (Math.imul(31, h) + str.charCodeAt(i)) | 0; }
+      return h;
+    }
+    function buildFakeQrSvg(seedString, size = 21, pixel = 9) {
+      const rand = mulberry32(hashSeed(seedString));
+      const dim = size * pixel;
+      let cells = [];
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) cells.push(0);
+      const set = (x, y, v) => { if (x >= 0 && x < size && y >= 0 && y < size) cells[y * size + x] = v; };
+      const drawFinder = (ox, oy) => {
+        for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++) set(ox + x, oy + y, 0);
+        for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+          const border = (x === 0 || x === 6 || y === 0 || y === 6);
+          const core = (x >= 2 && x <= 4 && y >= 2 && y <= 4);
+          set(ox + x, oy + y, (border || core) ? 1 : 0);
+        }
+      };
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) set(x, y, rand() < 0.46 ? 1 : 0);
+      drawFinder(0, 0); drawFinder(size - 7, 0); drawFinder(0, size - 7);
+      let rects = '';
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+        if (cells[y * size + x]) rects += `<rect x="${x * pixel}" y="${y * pixel}" width="${pixel}" height="${pixel}" fill="#04170c"/>`;
+      }
+      return `<svg width="${dim}" height="${dim}" viewBox="0 0 ${dim} ${dim}" xmlns="http://www.w3.org/2000/svg">
+        <rect width="${dim}" height="${dim}" fill="#ffffff"/>${rects}</svg>`;
+    }
+
+    // Lista as cobrancas da academia/mes informados, lendo do servidor.
+    async function recarregarCobrancas() {
+      const gymId = document.getElementById('newPaymentGymId').value;
+      const month = document.getElementById('newPaymentMonth').value;
+      const container = document.getElementById('localPaymentsList');
+      if (!gymId || !month) {
+        container.innerHTML = '<div class="empty">informe a academia e o mes para listar.</div>';
+        return;
+      }
+
+      const result = await request(`${API_BASE}/payments/gyms/${gymId}/payments_by_month/${month}`, 'GET');
+      if (!result.success) {
+        container.innerHTML = `<div class="empty">${result.message || 'erro ao listar cobrancas.'}</div>`;
+        return;
+      }
+      renderCobrancas(result.data || []);
+    }
+
+    function renderCobrancas(list) {
+      const container = document.getElementById('localPaymentsList');
+      container.innerHTML = '';
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div class="empty">nenhuma cobranca para essa academia/mes.</div>';
+        return;
+      }
+      list.forEach((p) => {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.innerHTML = `<strong>ref: ${p.id}</strong>
+          <div class="field"><b>academia:</b> ${p.gym_id || '-'}</div>
+          <div class="field"><b>mes:</b> ${p.month || '-'}</div>
+          <div class="field"><b>vencimento:</b> ${p.due_date || '-'}</div>
+          <div class="field"><b>valor:</b> R$ ${Number(p.value || 0).toFixed(2)}</div>
+          <div class="field"><b>status:</b> <span class="badge ${p.status === 'pago' ? 'pago' : 'pendente'}">${p.status}</span></div>`;
+
+        const acoes = document.createElement('div');
+        acoes.className = 'row';
+        acoes.style.marginTop = '8px';
+
+        if (p.status !== 'pago') {
+          const btn = document.createElement('button');
+          btn.className = 'amber';
+          btn.style.marginBottom = '0';
+          btn.textContent = 'Concluir pagamento';
+          btn.onclick = () => concluirPagamento(p.id);
+          acoes.appendChild(btn);
+        }
+
+        const del = document.createElement('button');
+        del.className = 'danger';
+        del.style.marginBottom = '0';
+        del.textContent = 'Excluir';
+        del.onclick = () => excluirPagamento(p.id, p.gym_id);
+        acoes.appendChild(del);
+
+        div.appendChild(acoes);
+        container.appendChild(div);
+      });
+    }
+
+    async function gerarPagamentoTeste() {
+      const gymId = document.getElementById('newPaymentGymId').value;
+      const month = document.getElementById('newPaymentMonth').value;
+      if (!gymId || !month) { setStatus('newPaymentStatus', 'informe a academia e o mes.', 'error'); return; }
+
+      const payment = {
+        id: (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`),
+        gym_id: gymId,
+        owner_id: currentUser ? currentUser.id : '',
+        month,
+        status: 'pendente',
+        due_date: new Date().toISOString().slice(0, 10),
+        value: 0,
       };
 
-      const result = await request(`/api/v1/gyms/${id}`, 'PUT', payload);
-      if (result.success) {
-        syncGym(payload);
-        status.textContent = 'Gym atualizado com sucesso.';
-      } else {
-        status.textContent = result.message || 'Erro ao atualizar gym.';
+      setStatus('newPaymentStatus', 'criando cobranca...', null);
+      const result = await request(`${API_BASE}/payments/payments`, 'POST', payment);
+      if (!result.success) {
+        document.getElementById('qrArea').innerHTML = '';
+        setStatus('newPaymentStatus', result.message || 'erro ao criar cobranca.', 'error');
+        return;
       }
+
+      const criado = result.data || payment;
+      const seed = `PIXTESTE|DEST:${TEST_PIX_TARGET}|VALOR:0.00|REF:${criado.id}`;
+      const svg = buildFakeQrSvg(seed);
+      document.getElementById('qrArea').innerHTML = `
+        <div class="qr-frame">
+          <div class="qr-box">${svg}</div>
+          <div class="qr-meta"><span class="k">destino:</span> (83) 99965-9889</div>
+          <div class="qr-meta"><span class="k">valor:</span> R$ ${Number(criado.value || 0).toFixed(2)}</div>
+          <div class="qr-meta"><span class="k">referencia:</span> ${criado.id}</div>
+          <div class="qr-meta blink"><span class="k">status:</span> aguardando pagamento...</div>
+          <div class="qr-caption">QR ilustrativo gerado localmente — nao e um codigo Pix real e nao deve ser escaneado para pagamento.</div>
+          <div class="qr-warning">ambiente de teste — nenhuma cobranca real e enviada.</div>
+        </div>`;
+
+      setStatus('newPaymentStatus', 'cobranca criada no servidor.', 'success');
+      recarregarCobrancas();
     }
+
+    async function concluirPagamento(id) {
+      const result = await request(`${API_BASE}/payments/payments/${id}/confirm`, 'PATCH');
+      if (result.success) setStatus('newPaymentStatus', 'pagamento confirmado.', 'success');
+      else setStatus('newPaymentStatus', result.message || 'erro ao confirmar pagamento.', 'error');
+      recarregarCobrancas();
+    }
+
+    async function excluirPagamento(id, gymId) {
+      const result = await request(`${API_BASE}/payments/payments/${id}?gym_id=${encodeURIComponent(gymId || '')}`, 'DELETE');
+      if (result.success) setStatus('newPaymentStatus', 'cobranca excluida.', 'success');
+      else setStatus('newPaymentStatus', result.message || 'erro ao excluir cobranca.', 'error');
+      recarregarCobrancas();
+    }
+
+    // Mostra no topo se a API esta gravando no Firebase ou so em memoria.
+    async function checarArmazenamento() {
+      try {
+        const result = await request(`${API_BASE}/health`, 'GET');
+        if (result && result.storage) {
+          document.getElementById('storageInfo').textContent = ` | persistencia: ${result.storage}`;
+        }
+      } catch (e) { /* servidor antigo sem /health */ }
+    }
+
+    tentarSessaoSalva();
+    checarArmazenamento();
   </script>
+<script>
+/* Camada de interface: navegação, sidebar e indicadores. Não altera a lógica acima. */
+(function(){
+  window.toggleSidebar=function(force){
+    var on=typeof force==='boolean'?force:!document.body.classList.contains('nav-open');
+    document.body.classList.toggle('nav-open',on);
+  };
+  function mark(n){document.querySelectorAll('[data-nav]').forEach(function(b){b.classList.toggle('active',b.dataset.nav===n);});}
+  var _show=showSub;
+  showSub=function(n){_show(n);mark(n);toggleSidebar(false);window.scrollTo({top:0});};
+  var _dash=goToDashboard;
+  goToDashboard=function(){
+    _dash();
+    var nome=(currentUser&&currentUser.nome)||'?';
+    document.getElementById('avatar').textContent=nome.trim().charAt(0).toUpperCase()||'?';
+    refreshSystem();
+  };
+  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  async function pingApi(){
+    var t=performance.now(),ok=false,st='—';
+    try{var r=await request(API_BASE+'/health','GET');ok=!!r.success;if(r.storage)st=String(r.storage).split(' ')[0];}catch(e){}
+    var ms=Math.round(performance.now()-t),cls='dot '+(ok?'on':'off');
+    document.getElementById('apiDot').className=cls;
+    document.getElementById('stateDot').className=cls;
+    set('apiLabel',ok?'Online':'Offline');
+    set('sysState',ok?'Sistema ativo':'Sistema indisponível');
+    set('sysApi',ok?'Online':'Offline');
+    set('sysConn',ok?'Estável':'Sem conexão');
+    set('sysLatency',ok?ms+' ms':'—');
+    set('sysStorage',ok?st:'—');
+    return ok;
+  }
+  async function count(p){
+    try{var r=await request(API_BASE+'/'+p,'GET'),d=r&&r.data;return Array.isArray(d)?d.length:Object.keys(d||{}).length;}
+    catch(e){return '—';}
+  }
+  window.refreshSystem=async function(){
+    if(!(await pingApi()))return;
+    set('sysGyms',await count('gyms'));
+    set('sysUsers',await count('users'));
+  };
+  window.executarComando=function(){
+    var i=document.getElementById('cmdInput'),h=document.getElementById('cmdHint');
+    var q=i.value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(!q)return;
+    var rules=[[['list','academia'],'listGyms'],[['list','usuario'],'listUsers'],[['nova'],'paymentsNew'],[['cobranca'],'paymentsNew'],[['status'],'paymentsStatus'],[['pagamento'],'paymentsStatus'],[['academia'],'gym'],[['usuario'],'users'],[['inicio'],'menu']];
+    for(var k=0;k<rules.length;k++){
+      if(rules[k][0].every(function(w){return q.indexOf(w)>-1;})){i.value='';h.textContent='';showSub(rules[k][1]);return;}
+    }
+    h.className='message error';
+    h.textContent='Não encontrei esse destino. Tente: academias, usuários, pagamentos ou nova cobrança.';
+  };
+  pingApi();
+  setInterval(pingApi,30000);
+  mark('menu');
+})();
+</script>
 </body>
-</html>
